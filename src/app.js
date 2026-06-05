@@ -67,7 +67,7 @@ apiRouter.get('/evaluation', (req, res) => {
     candidateName: 'Priyanshu Kumar Verma',
     email: 'priyanshukumarverma@gmail.com',
     repositoryUrl: 'https://github.com/gitxpriyanshu/hintro',
-    deployedUrl: 'https://hintro-meeting-intelligence.onrender.com',
+    deployedUrl: 'https://hintro-meeting-intelligence-vu3v.onrender.com',
     externalIntegration: 'Resend Email API',
     features: [
       'JWT Authentication',
