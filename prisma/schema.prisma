@@ -1,0 +1,98 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id          String       @id @default(uuid())
+  email       String       @unique
+  password    String
+  name        String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  meetings    Meeting[]
+  actionItems ActionItem[] @relation("UserActionItems")
+}
+
+enum MeetingStatus {
+  PENDING
+  ANALYZED
+}
+
+model Meeting {
+  id           String           @id @default(uuid())
+  title        String
+  participants String[]
+  meetingDate  DateTime
+  transcript   Json             // Stores array of { timestamp: string, speaker: string, text: string }
+  status       MeetingStatus    @default(PENDING)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  userId       String
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analysis     MeetingAnalysis?
+  actionItems  ActionItem[]
+
+  @@index([userId])
+}
+
+model MeetingAnalysis {
+  id                  String   @id @default(uuid())
+  meetingId           String   @unique
+  summary             Json     // Stores array of { text: string, citations: [{ timestamp, speaker, quote }] }
+  actionItemsRaw      Json     // Stores raw AI output JSON
+  decisions           Json     // Stores array of { text: string, citations: [...] }
+  followUpSuggestions Json     // Stores array of { text: string, citations: [...] }
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  meeting             Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+}
+
+enum ActionItemStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+model ActionItem {
+  id         String           @id @default(uuid())
+  meetingId  String
+  task       String
+  assignee   String           // Name or email string
+  dueDate    DateTime?
+  status     ActionItemStatus @default(PENDING)
+  citations  Json             // Stores array of { timestamp, speaker, quote }
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  meeting    Meeting          @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  reminders  ReminderLog[]
+  
+  // Relation link to support assignee relationship to User
+  assigneeId String?
+  assigneeUser User?          @relation("UserActionItems", fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  @@index([meetingId])
+  @@index([status])
+}
+
+enum ReminderStatus {
+  SENT
+  FAILED
+}
+
+model ReminderLog {
+  id           String         @id @default(uuid())
+  actionItemId String
+  sentAt       DateTime       @default(now())
+  channel      String         // e.g., "email"
+  recipient    String
+  status       ReminderStatus
+  errorMessage String?
+  actionItem   ActionItem     @relation(fields: [actionItemId], references: [id], onDelete: Cascade)
+
+  @@index([actionItemId])
+}
