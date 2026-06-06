@@ -143,7 +143,7 @@ Return ONLY the JSON object. No markdown, no explanation, no code fences.`;
   const callAIClient = async () => {
     const client = getOpenAIClient();
     return await client.chat.completions.create({
-      model: 'meta-llama/llama-3.3-70b-instruct:free',
+      model: 'deepseek/deepseek-r1:free',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
