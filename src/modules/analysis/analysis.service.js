@@ -7,17 +7,13 @@ const logger = require('../../config/logger');
 let _openai = null;
 function getOpenAIClient() {
   if (!_openai) {
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
-      throw new AppError('Server Configuration Error: OPENROUTER_API_KEY environment variable is missing.', 500, 'CONFIG_ERROR');
+      throw new AppError('Server Configuration Error: GROQ_API_KEY environment variable is missing.', 500, 'CONFIG_ERROR');
     }
     _openai = new OpenAI({
-      baseURL: 'https://openrouter.ai/api/v1',
-      apiKey,
-      defaultHeaders: {
-        'HTTP-Referer': 'https://github.com/priyanshukv/hintro-meeting-intelligence',
-        'X-Title': 'Hintro Meeting Intelligence'
-      }
+      baseURL: 'https://api.groq.com/openai/v1',
+      apiKey
     });
   }
   return _openai;
@@ -143,7 +139,7 @@ Return ONLY the JSON object. No markdown, no explanation, no code fences.`;
   const callAIClient = async () => {
     const client = getOpenAIClient();
     return await client.chat.completions.create({
-      model: 'deepseek/deepseek-r1:free',
+      model: 'llama-3.3-70b-versatile',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
