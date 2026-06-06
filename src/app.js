@@ -72,7 +72,7 @@ apiRouter.get('/evaluation', (req, res) => {
     features: [
       'JWT Authentication',
       'Meeting Management with Pagination',
-      'AI Analysis with Llama 3.3 70B (OpenRouter)',
+      'AI Analysis with Llama 3.3 70B (Groq)',
       'Transcript-Grounded Citations',
       'Hallucination Prevention',
       'Action Item Management',
